@@ -40,4 +40,5 @@ VALUES 	(1, 'Dwight','Schrute'),
         (17,'Erin','Hannon');
         
 SELECT * FROM participants;
+
 SELECT * FROM santa_connections;
