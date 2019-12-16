@@ -3,9 +3,106 @@ import java.util.Random;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 public class ParticipantsDAO {
 	
+	
+	public Boolean isParticipantAlreadyExistsMANAGERDAO(String firstName, String lastName) {
+		
+		Transaction transaction = null;
+			
+			try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+
+				transaction = session.beginTransaction();
+
+				try {
+
+					Participants object = (Participants) session.createQuery(" FROM Participants p WHERE p.firstName = '"
+							+ firstName + "' AND p.lastName = '" + lastName + "'").getSingleResult();
+
+					if(object == null) {
+						return false;
+					}
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			} catch (Exception e) {
+				if (transaction != null) {
+					transaction.rollback();
+				}
+				e.printStackTrace();
+			}
+			return true;
+			
+		}
+	
+	public Boolean isPerticipantAlreadyASanta(String firstName, String lastName) {
+		
+		Transaction transaction = null;
+			
+			try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+
+				transaction = session.beginTransaction();
+				
+				Participants participant = (Participants) session.createQuery(" FROM Participants p WHERE p.firstName = '"
+						+ firstName + "' AND p.lastName = '" + lastName + "'").getSingleResult();
+				
+				System.out.println("Czy jestes sant¹  ? " +  participant.getIsSantaAlready());
+				
+				if(participant != null & participant.getIsSantaAlready() == false) {
+					return false;
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return true;
+			
+		}
+	
+	public void setSantaInDatabase(String firstName, String lastName) {
+		
+		Transaction transaction = null;
+
+		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+
+			transaction = session.beginTransaction();
+			
+			Participants participant = getSingleParticipant(firstName, lastName);
+
+			participant.setIsSantaAlready(true);
+
+			session.update(participant);
+
+			transaction.commit();
+
+		} catch (Exception e) {
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			e.printStackTrace();
+		}
+
+	}
+	
+	public List<Participants> getParticipants(){
+		try(Session session = HibernateUtil.getSessionFactory().openSession()){
+			return session.createQuery("from Participants", Participants.class).list();
+		}
+	}
+	
+	public List<SantaConnections> getSantaConnection(){
+		try 
+			(Session session = HibernateUtil.getSessionFactory().openSession()){
+				return session.createQuery("from SantaConnections", SantaConnections.class).list();
+		}
+	}
+	
+	
+	// =============================================== U¯YWANE W MANAGERZE ======================================
 	
 	public void saveParticipantString(String firstName, String lastName) {
 		
@@ -80,75 +177,64 @@ public class ParticipantsDAO {
 	}
 	
 	
-	public Boolean isParticipantAlreadyExistsMANAGERDAO(String firstName, String lastName) {
-		
-	Transaction transaction = null;
-		
+	
+	
+	public Participants getSingleParticipant(String firstName, String lastName) {
+
+		Transaction transaction = null;
+
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 
 			transaction = session.beginTransaction();
 
-			try {
+			Participants participant = (Participants) session.createQuery(
+					" FROM Participants p WHERE p.firstName = '" + firstName + "' AND p.lastName = '" + lastName + "'")
+					.getSingleResult();
 
-				Participants object = (Participants) session.createQuery(" FROM Participants p WHERE p.firstName = '"
-						+ firstName + "' AND p.lastName = '" + lastName + "'").getSingleResult();
+			if (participant != null) {
+				return participant;
 
-				if(object == null) {
-					return true;
-				}
-				
-				System.out.println(object.getFirstName() + " " + object.getLastName());
-
-			} catch (Exception e) {
-				System.out.println("No participant in database");
 			}
 
 		} catch (Exception e) {
-			if (transaction != null) {
-				transaction.rollback();
-			}
 			e.printStackTrace();
 		}
-		return false;
-		
-	}
-	
-	
-	
-	
-	public List<Participants> getParticipants(){
-		try(Session session = HibernateUtil.getSessionFactory().openSession()){
-			return session.createQuery("from Participants", Participants.class).list();
-		}
-	}
-	
-	public Participants getSanta(String firstName, String lastName) {
+		return null;
 
-		Participants santa = null;
-		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-			List<Participants> list = session.createQuery("from Participants", Participants.class).list();
-
-			for (Participants person : list) {
-				if(person.getIsSantaAlready().equals(true)) {
-					System.out.println("PARTICIPANT IS ALREADY A SANTA !");
-					return null;
-				}else if (person.getLastName().equals(lastName) && person.getFirstName().equals(firstName)) {
-					santa = person;
-					setSantaInDatabase(santa);
-					System.out.println(
-							"SUCCES WE HAVE A " + person.getFirstName() + " " + person.getLastName() + " IN DATABASE !!!");
-					
-					break;
-				}
-			}
-			if (santa == null) {
-				System.out.println("NO USER WITH THIS CREDENTIALS IN BASE");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return santa;
 	}
+	
+	
+	
+	
+
+	
+//	public Participants getSanta(String fullName) {
+//
+//		Participants santa = null;
+//		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+//			List<Participants> list = session.createQuery("from Participants", Participants.class).list();
+//
+//			for (Participants person : list) {
+//				if (person.getIsSantaAlready().equals(true)) {
+//					System.out.println("PARTICIPANT IS ALREADY A SANTA !");
+//					return null;
+//				} else if (person.getLastName().equals(lastName) && person.getFirstName().equals(firstName)) {
+//					santa = person;
+//					setSantaInDatabase(santa);
+//					System.out.println("SUCCES WE HAVE A " + person.getFirstName() + " " + person.getLastName()
+//							+ " IN DATABASE !!!");
+//
+//					break;
+//				}
+//			}
+//			if (santa == null) {
+//				System.out.println("NO USER WITH THIS CREDENTIALS IN BASE");
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return santa;
+//	}
 	
 	private void setSantaInDatabase(Participants santa) {
 		
@@ -205,6 +291,8 @@ public class ParticipantsDAO {
 
 	}
 	
+	
+	
 	public Boolean isParticipantExistsObj(Participants participant) {
 		
 		List<Participants> list = getParticipants();
@@ -219,19 +307,18 @@ public class ParticipantsDAO {
 		return false;
 	}
 
-	public void saveSantaConnection(Participants santa, Participants goodChild) {
+	public void saveSantaConnection(Participants santa, Participants reciving) {
 		
-		if(santa != null && goodChild != null) {
+		if(santa != null && reciving != null) {
 		
 		Transaction transaction = null;
 		
 		SantaConnections connections = new SantaConnections();
 		
-		String santaWholeName = santa.getFirstName() + " " + santa.getLastName();
-		String childWholeName = goodChild.getFirstName() + " " + goodChild.getLastName();
-		
-		connections.setSantaWholeName(santaWholeName);
-		connections.setGoodChild(childWholeName);
+		connections.setSantaName(santa.getFirstName());
+		connections.setSantaLastName(santa.getLastName());
+		connections.setUserName(reciving.getFirstName());
+		connections.setUserLastName(reciving.getLastName());
 		
 		try(Session session = HibernateUtil.getSessionFactory().openSession()){
 			
@@ -249,6 +336,40 @@ public class ParticipantsDAO {
 		}
 		}
 		
+	}
+
+	public void removeParticipant(String name, String lastName) {
+
+		Transaction transaction = null;
+
+		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+
+			transaction = session.beginTransaction();
+
+			try {
+				
+				Participants toRemove =  (Participants) session.createQuery("From Participants p WHERE p.firstName = '" + name + "' AND p.lastName = '" + lastName + "'").getSingleResult();
+				
+				session.remove(toRemove);
+				
+				transaction.commit();
+				
+				
+			}catch (Exception e) {
+				transaction.rollback();
+				e.printStackTrace();
+			}
+			
+			
+			
+			
+		} catch (Exception e) {
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			e.printStackTrace();
+		}
+
 	}
 	
 	
@@ -288,6 +409,34 @@ public class ParticipantsDAO {
 //			}
 //			e.printStackTrace();
 //		}
+//	}
+	
+//	public Participants getSanta(String firstName, String lastName) {
+//
+//		Participants santa = null;
+//		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+//			List<Participants> list = session.createQuery("from Participants", Participants.class).list();
+//
+//			for (Participants person : list) {
+//				if(person.getIsSantaAlready().equals(true)) {
+//					System.out.println("PARTICIPANT IS ALREADY A SANTA !");
+//					return null;
+//				}else if (person.getLastName().equals(lastName) && person.getFirstName().equals(firstName)) {
+//					santa = person;
+//					setSantaInDatabase(santa);
+//					System.out.println(
+//							"SUCCES WE HAVE A " + person.getFirstName() + " " + person.getLastName() + " IN DATABASE !!!");
+//					
+//					break;
+//				}
+//			}
+//			if (santa == null) {
+//				System.out.println("NO USER WITH THIS CREDENTIALS IN BASE");
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return santa;
 //	}
 	
 	

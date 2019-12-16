@@ -30,7 +30,11 @@ public class Demo1 {
 			case 0:
 				System.out.println("1 - show all participants");
 				System.out.println("2 - save new participant in database");
-				System.out.println("3 - enter your name to pick secretSanta");
+				System.out.println("3 - draw a person who will receive a gift from you");
+				System.out.println("4 - show connections");
+				System.out.println("5 - delete participant");
+				System.out.println("6 - update participant");
+				
 				System.out.println("9 - to exit");
 				break;
 
@@ -47,7 +51,6 @@ public class Demo1 {
 
 			case 2:
 
-				// check if this persona already exists ?
 
 				sc = new Scanner(System.in);
 
@@ -56,12 +59,10 @@ public class Demo1 {
 
 				boolean isParticipantInDB = manager.isParticipantAlreadyExists(fullName);
 
-				// if not save to DB
 
 				if (isParticipantInDB) {
 					System.out.println("This participant already exists!");
 				} else {
-//					participantsDAO.saveParticipantString(firstName, lastName);
 					manager.saveParticipantString(fullName);
 					System.out.println(fullName + " is signed in Database");
 				}
@@ -69,33 +70,38 @@ public class Demo1 {
 				break;
 
 			case 3:
+				sc = new Scanner(System.in);
+				System.out.println("Enter your name and last name:");
+				
+				fullName = sc.nextLine();
+				
+				System.out.println(fullName);
+				
+				manager.drawAPerson(fullName);
+				
+				break;
+				
+			case 4:
+				
+				List<SantaConnections> list = participantsDAO.getSantaConnection();
+				list.forEach(s -> System.out.println("Secret Santa is : " + s.getSantaName() + " " + s.getSantaLastName() + " | Reciving : " + s.getUserName() + " " + s.getUserLastName()));
 
-				System.out.println("Enter your name:");
-				firstName = sc.next();
-				System.out.println("Enter your lastName");
-				lastName = sc.next();
-
-				Participants santa = participantsDAO.getSanta(firstName, lastName);
-
-				if (santa != null) {
-					System.out.println("SANTA NAME : " + santa.getFirstName() + " " + santa.getLastName());
-				} else {
-					System.out.println(firstName + " " + lastName + " is already a Santa !");
-
-					// once again pick connection with santa and goodChild from DB
-
-					break;
-
+				if (list.isEmpty()) {
+					System.out.println("List is empty");
 				}
 
-				Participants goodChild = participantsDAO.getGoodChild(firstName, lastName);
-				System.out.println(goodChild.getFirstName() + " " + goodChild.getLastName());
-
-				System.out.println("SANTA " + santa.getFirstName() + " " + santa.getLastName() + "/t" + " Good child : "
-						+ goodChild.getFirstName() + " " + goodChild.getLastName());
-
 				break;
-
+			case 5:
+				
+				// usuñ participanta z bazy oraz z pozosta³ych
+				sc = new Scanner(System.in);
+				System.out.println("Enter name and last name participant to remove");
+				String toRemove = sc.nextLine();
+				
+				String remove = manager.participantToRemove(toRemove);
+				
+				System.out.println(remove);
+				
 			case 9:
 
 				System.out.println("Program shutting down...");

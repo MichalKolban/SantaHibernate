@@ -14,19 +14,28 @@ public class SantaConnections {
 	@Column(name="id")
 	private int id;
 	
-	@Column(name="santa_whole_name")
-	private String santaWholeName;
+	@Column(name="santa_name")
+	private String santaName;
 	
-	@Column(name="user_whole_name")
-	private String goodChild;
+	@Column(name="santa_last_name")
+	private String santaLastName;
+	
+	@Column(name="reciving_participant_name")
+	private String userName;
+	
+	@Column(name="reciving_participant_last_name")
+	private String userLastName;
 	
 	public SantaConnections() {
 		
 	}
 
-	public SantaConnections(String santaWholeName, String goodChild) {
-		this.santaWholeName = santaWholeName;
-		this.goodChild = goodChild;
+	public SantaConnections(String santaName, String santaLastName, String userName, String userLastName) {
+		super();
+		this.santaName = santaName;
+		this.santaLastName = santaLastName;
+		this.userName = userName;
+		this.userLastName = userLastName;
 	}
 
 	public int getId() {
@@ -37,20 +46,36 @@ public class SantaConnections {
 		this.id = id;
 	}
 
-	public String getSantaWholeName() {
-		return santaWholeName;
+	public String getSantaName() {
+		return santaName;
 	}
 
-	public void setSantaWholeName(String santaWholeName) {
-		this.santaWholeName = santaWholeName;
+	public void setSantaName(String santaName) {
+		this.santaName = santaName;
 	}
 
-	public String getGoodChild() {
-		return goodChild;
+	public String getSantaLastName() {
+		return santaLastName;
 	}
 
-	public void setGoodChild(String goodChild) {
-		this.goodChild = goodChild;
+	public void setSantaLastName(String santaLastName) {
+		this.santaLastName = santaLastName;
 	}
-	
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserLastName() {
+		return userLastName;
+	}
+
+	public void setUserLastName(String userLastName) {
+		this.userLastName = userLastName;
+	}
+
 }
