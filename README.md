@@ -17,8 +17,10 @@ is_santa_already BOOLEAN DEFAULT FALSE);
 
 CREATE TABLE santa_connections(
 id INT auto_increment primary KEY,
-santa_whole_name VARCHAR(100),
-user_whole_name VARCHAR(100));
+santa_name VARCHAR(100),
+santa_last_name VARCHAR(100),
+reciving_participant_name VARCHAR(100),
+reciving_participant_last_name VARCHAR(100));
 
 INSERT INTO participants (id, user_name, user_last_name) 
 VALUES 	(1, 'Dwight','Schrute'), 
