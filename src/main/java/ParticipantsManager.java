@@ -23,7 +23,11 @@ public class ParticipantsManager {
 			e.printStackTrace();
 		}
 
-		Boolean object = participantsDAO.isParticipantAlreadyExistsMANAGERDAO(firstName, lastName);
+		Boolean object = participantsDAO.isParticipantAlreadyExists(firstName, lastName);
+		
+		if(object == null) {
+			System.out.println("There is no person like : " + fullName + " in DB" );
+		}
 
 		return object;
 	}
@@ -57,19 +61,6 @@ public class ParticipantsManager {
 			e.printStackTrace();
 		}
 	}
-
-	
-	// wybierasz osobe
-	// sprawdzamy czy Ty jestes w bazie
-	// jezeli jesteœ to :
-		// sprawdzamy czy nie jesteœ juz sant¹ 
-		// losujemy Ci osobe
-		// ustawiamy Ciebie ze jestes juz sant¹ 
-		// ustawiamy juz wylosowan¹ osobê ze ktos juz j¹ ma
-		// zapisac relacje w nowej tabeli
-	
-	// jezeli nie jestes ;
-		// propozycja zapisu w bazie jako nowy uczestnik 
 	
 	public void drawAPerson(String fullName) {
 		
@@ -78,14 +69,8 @@ public class ParticipantsManager {
 		String firstName = tab[0];
 		String lastName = tab[1];
 		
-		// najpierw sprawdzamy czy jest taka osoba w bazie 
-		// czu nie jest ju¿ sant¹ 
-		
-		boolean exists = participantsDAO.isParticipantAlreadyExistsMANAGERDAO(firstName, lastName);
+		boolean exists = participantsDAO.isParticipantAlreadyExists(firstName, lastName);
 		boolean isAlreadyASanta = participantsDAO.isPerticipantAlreadyASanta(firstName, lastName);
-		
-		// jezeli jest to losuje osobe
-		// santa ustawiany jest w bazie jako osoba która juz by³a sant¹
 		
 		if(exists && isAlreadyASanta == false) {
 			
@@ -93,10 +78,8 @@ public class ParticipantsManager {
 			
 			Participants santa = new Participants();
 			
-			// ustawiamy ¿e dana osoba jest ju¿ sant¹
 			participantsDAO.setSantaInDatabase(firstName, lastName);
 			
-			// wybraæ osobê obdarowywan¹
 			List<Participants> list = participantsDAO.getParticipants();
 			
 			for(Participants person : list) {
@@ -112,11 +95,7 @@ public class ParticipantsManager {
 			System.out.println("Secret santa is : " + firstName + " " + lastName);
 			System.out.println("Revicing Participant is : " + recivingParticipant.getFirstName() + " " + recivingParticipant.getLastName());
 			
-			
-			// zapisaæ powi¹zanie w nowej tabeli
-			
 			participantsDAO.saveSantaConnection(santa, recivingParticipant);
-			
 			
 			System.out.println(" Klient jest w bazie ale nie jest Sant¹");
 			
@@ -135,29 +114,68 @@ public class ParticipantsManager {
 	public String participantToRemove(String toRemove) {
 
 		String message = "";
-		
+
 		Boolean exists = isParticipantAlreadyExists(toRemove);
-		
+
+		System.out.println(exists);
+
 		String[] tab = toRemove.split(" ");
-		
+
 		String name = tab[0];
 		String lastName = tab[1];
-		
-		if(exists) {
-			
+
+		if (exists) {
+
 			participantsDAO.removeParticipant(name, lastName);
-			System.out.println(toRemove + " is removed");
-			
+
+			participantsDAO.deleteFromSantaConnections(name, lastName);
+
 			message = toRemove + " is succesfully deleted from DB";
-			
+
 		} else {
-			message = " something gone wrong x( ";
+			message = "There is no participant like : " + toRemove + " in DB" ;
 		}
-		
-		
 		return message;
+	}
+	
+	
+	private Participants getSingleChild(List<Participants> list, String name, String lastName) {
+
+		Participants choosen = null;
+		Random r = new Random();
+		choosen = list.get(r.nextInt(list.size()));
+		while (choosen.getFirstName().equals(name) && choosen.getLastName().equals(lastName)) {
+			r = new Random();
+			choosen = list.get(r.nextInt(list.size()));
+		}
+		return choosen;
+
+	}
+
+	public void participantToUpdate(String toUpdate) {
+		
+		
+		// sprawdz czy kontakt istnieje
+		// zrob update
+		// zwroc cos na sysout
 		
 	}
+	
+}	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
 	
 //public Participants getGoodChild (String name, String lastName) {
 //		
@@ -177,20 +195,8 @@ public class ParticipantsManager {
 //		
 //	}
 	
-	private Participants getSingleChild(List<Participants> list, String name, String lastName) {
-
-		Participants choosen = null;
-		Random r = new Random();
-		choosen = list.get(r.nextInt(list.size()));
-		while (choosen.getFirstName().equals(name) && choosen.getLastName().equals(lastName)) {
-			r = new Random();
-			choosen = list.get(r.nextInt(list.size()));
-		}
-		return choosen;
-
-	}
+	
 
 	
 	
-	
-}
+

@@ -11,8 +11,8 @@ public class Demo1 {
 
 		String fullName = "";
 
-		String firstName = "";
-		String lastName = "";
+//		String firstName = "";
+//		String lastName = "";
 
 		String quit = "";
 
@@ -93,7 +93,6 @@ public class Demo1 {
 				break;
 			case 5:
 				
-				// usuñ participanta z bazy oraz z pozosta³ych
 				sc = new Scanner(System.in);
 				System.out.println("Enter name and last name participant to remove");
 				String toRemove = sc.nextLine();
@@ -101,6 +100,18 @@ public class Demo1 {
 				String remove = manager.participantToRemove(toRemove);
 				
 				System.out.println(remove);
+				break;
+				
+			case 6:
+				
+				sc= new Scanner(System.in);
+				System.out.println("Enter name and last name contact to update:");
+				String toUpdate = sc.nextLine();
+				
+				manager.participantToUpdate(toUpdate);
+				
+				
+				break;
 				
 			case 9:
 

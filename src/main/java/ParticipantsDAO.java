@@ -8,36 +8,33 @@ import org.hibernate.query.Query;
 public class ParticipantsDAO {
 	
 	
-	public Boolean isParticipantAlreadyExistsMANAGERDAO(String firstName, String lastName) {
-		
+	public Boolean isParticipantAlreadyExists(String firstName, String lastName) {
+
 		Transaction transaction = null;
-			
-			try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 
-				transaction = session.beginTransaction();
+		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 
-				try {
+			transaction = session.beginTransaction();
 
-					Participants object = (Participants) session.createQuery(" FROM Participants p WHERE p.firstName = '"
-							+ firstName + "' AND p.lastName = '" + lastName + "'").getSingleResult();
+			try {
 
-					if(object == null) {
-						return false;
-					}
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				Participants object = (Participants) session.createQuery(" FROM Participants p WHERE p.firstName = '"
+						+ firstName + "' AND p.lastName = '" + lastName + "'").getSingleResult();
+
+				System.out.println(object);
 
 			} catch (Exception e) {
 				if (transaction != null) {
 					transaction.rollback();
 				}
 				e.printStackTrace();
+				return false;
 			}
-			return true;
-			
+
 		}
+		return true;
+
+	}
 	
 	public Boolean isPerticipantAlreadyASanta(String firstName, String lastName) {
 		
@@ -130,51 +127,6 @@ public class ParticipantsDAO {
 		}
 	}
 	
-	public Boolean isParticipantAlreadyExists(String fullName) {
-		
-		String firstName = "";
-		String lastName = "";
-		
-		try {
-			String[] tab = fullName.split(" ");
-			firstName = tab[0];
-			lastName = tab[1];
-			
-		}catch (Exception e) {
-			System.out.println("Please enter name spacebar and last name");
-			e.printStackTrace();
-		}
-		
-	Transaction transaction = null;
-		
-		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-
-			transaction = session.beginTransaction();
-
-			try {
-
-				Participants object = (Participants) session.createQuery(" FROM Participants p WHERE p.firstName = '"
-						+ firstName + "' AND p.lastName = '" + lastName + "'").getSingleResult();
-
-				if(object == null) {
-					return true;
-				}
-				
-				System.out.println(object.getFirstName() + " " + object.getLastName());
-
-			} catch (Exception e) {
-				System.out.println("No participant in database");
-			}
-
-		} catch (Exception e) {
-			if (transaction != null) {
-				transaction.rollback();
-			}
-			e.printStackTrace();
-		}
-		return false;
-		
-	}
 	
 	
 	
@@ -208,33 +160,7 @@ public class ParticipantsDAO {
 	
 
 	
-//	public Participants getSanta(String fullName) {
-//
-//		Participants santa = null;
-//		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-//			List<Participants> list = session.createQuery("from Participants", Participants.class).list();
-//
-//			for (Participants person : list) {
-//				if (person.getIsSantaAlready().equals(true)) {
-//					System.out.println("PARTICIPANT IS ALREADY A SANTA !");
-//					return null;
-//				} else if (person.getLastName().equals(lastName) && person.getFirstName().equals(firstName)) {
-//					santa = person;
-//					setSantaInDatabase(santa);
-//					System.out.println("SUCCES WE HAVE A " + person.getFirstName() + " " + person.getLastName()
-//							+ " IN DATABASE !!!");
-//
-//					break;
-//				}
-//			}
-//			if (santa == null) {
-//				System.out.println("NO USER WITH THIS CREDENTIALS IN BASE");
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return santa;
-//	}
+
 	
 	private void setSantaInDatabase(Participants santa) {
 		
@@ -347,22 +273,20 @@ public class ParticipantsDAO {
 			transaction = session.beginTransaction();
 
 			try {
-				
-				Participants toRemove =  (Participants) session.createQuery("From Participants p WHERE p.firstName = '" + name + "' AND p.lastName = '" + lastName + "'").getSingleResult();
-				
+
+				Participants toRemove = (Participants) session.createQuery(
+						"From Participants p WHERE p.firstName = '" + name + "' AND p.lastName = '" + lastName + "'")
+						.getSingleResult();
+
 				session.remove(toRemove);
-				
+
 				transaction.commit();
-				
-				
-			}catch (Exception e) {
+
+			} catch (Exception e) {
 				transaction.rollback();
 				e.printStackTrace();
 			}
-			
-			
-			
-			
+
 		} catch (Exception e) {
 			if (transaction != null) {
 				transaction.rollback();
@@ -372,10 +296,36 @@ public class ParticipantsDAO {
 
 	}
 	
-	
-	
-	
-	
+	public void deleteFromSantaConnections(String name, String lastName) {
+
+		Transaction transaction = null;
+
+		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+
+			transaction = session.beginTransaction();
+
+			try {
+
+				SantaConnections toRemove = (SantaConnections) session.createQuery(
+						"From SantaConnections s WHERE s.santaName = '" + name + "' AND s.santaLastName = '" + lastName
+								+ "' OR s.userName = '" + name + "' AND s.userLastName ='" + lastName + "' ")
+						.getSingleResult();
+
+				session.remove(toRemove);
+
+				transaction.commit();
+
+			} catch (Exception e) {
+				if (transaction != null) {
+					transaction.rollback();
+				}
+				e.printStackTrace();
+			}
+
+		}
+	}
+}
+
 	
 	
 	
@@ -439,26 +389,77 @@ public class ParticipantsDAO {
 //		return santa;
 //	}
 	
-	
-	
-//	================================  NOT WORKING FOR NOW  ================================
-//
-//	public String createNewParticipant(String name, String lastName){
+//	public Boolean isParticipantAlreadyExists(String fullName) {
+//	
+//	String firstName = "";
+//	String lastName = "";
+//	
+//	try {
+//		String[] tab = fullName.split(" ");
+//		firstName = tab[0];
+//		lastName = tab[1];
 //		
-//		Participants participant = new Participants();
-//		ParticipantsDAO participantsDAO = new ParticipantsDAO();
-//		
-//		participant.setFirstName(name);
-//		participant.setLastName(lastName);
-//		
-//		if(participantsDAO.isParticipantExists(participant.getFirstName(), participant.getLastName())) {
-//			participantsDAO.saveParticipant(participant);
-//			return "New Participant : " + name + " " + lastName + " added!";
-//		}
-//		
-//		return "Participant " + name + " " + lastName + " already exists!";
+//	}catch (Exception e) {
+//		System.out.println("Please enter name spacebar and last name");
+//		e.printStackTrace();
 //	}
-	
-	
-	
-}
+//	
+//Transaction transaction = null;
+//	
+//	try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+//
+//		transaction = session.beginTransaction();
+//
+//		try {
+//
+//			Participants object = (Participants) session.createQuery(" FROM Participants p WHERE p.firstName = '"
+//					+ firstName + "' AND p.lastName = '" + lastName + "'").getSingleResult();
+//
+//			if(object == null) {
+//				return true;
+//			}
+//			
+//			System.out.println(object.getFirstName() + " " + object.getLastName());
+//
+//		} catch (Exception e) {
+//			System.out.println("No participant in database");
+//		}
+//
+//	} catch (Exception e) {
+//		if (transaction != null) {
+//			transaction.rollback();
+//		}
+//		e.printStackTrace();
+//	}
+//	return false;
+//	
+//}	
+
+//public Participants getSanta(String fullName) {
+//
+//	Participants santa = null;
+//	try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+//		List<Participants> list = session.createQuery("from Participants", Participants.class).list();
+//
+//		for (Participants person : list) {
+//			if (person.getIsSantaAlready().equals(true)) {
+//				System.out.println("PARTICIPANT IS ALREADY A SANTA !");
+//				return null;
+//			} else if (person.getLastName().equals(lastName) && person.getFirstName().equals(firstName)) {
+//				santa = person;
+//				setSantaInDatabase(santa);
+//				System.out.println("SUCCES WE HAVE A " + person.getFirstName() + " " + person.getLastName()
+//						+ " IN DATABASE !!!");
+//
+//				break;
+//			}
+//		}
+//		if (santa == null) {
+//			System.out.println("NO USER WITH THIS CREDENTIALS IN BASE");
+//		}
+//	} catch (Exception e) {
+//		e.printStackTrace();
+//	}
+//	return santa;
+//}
+
